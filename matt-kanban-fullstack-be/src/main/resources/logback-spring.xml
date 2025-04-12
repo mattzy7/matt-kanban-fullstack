@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration debug="false" scan="true" scanPeriod="60 seconds">
+    <contextName>logback</contextName>
+    <springProperty scope="context" name="LOG_PATH" source="logging.path" />
+    <springProperty scope="context" name="APP_NAME" source="spring.application.name" />
+    <springProperty scope="context" name="LOG_PATTERN" source="logging.pattern" />
+    <springProperty scope="context" name="QUEUE_SIZE" source="logging.queue-size" />
+
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder charset="utf-8">
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/${APP_NAME}.log</file>
+        <encoder charset="utf-8">
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/${APP_NAME}/%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>16MB</maxFileSize>
+            <maxHistory>7</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <appender name="async_file" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="file"/>
+        <includeCallerData>true</includeCallerData>
+        <queueSize>${QUEUE_SIZE}</queueSize>
+    </appender>
+
+
+    <logger name="org.springframework.jdbc" level="info" />
+
+    <root level="info">
+        <appender-ref ref="console" />
+        <appender-ref ref="async_file" />
+    </root>
+
+</configuration>
